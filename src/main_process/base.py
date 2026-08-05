@@ -27,7 +27,7 @@ class NodeBase(ABC):
             logger.info('处理任务完成')
             return res
         except Exception as e:
-            logger.info(f'报错了 只因{e}')
+            logger.info(f'报错了 只因 : {e}')
 
 
 

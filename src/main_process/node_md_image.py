@@ -216,9 +216,6 @@ class node_md_img(NodeBase):
         return image_with_sum
 
 
-
-
-
 if __name__ == '__main__':
     node = node_md_img()
     init_state = {
