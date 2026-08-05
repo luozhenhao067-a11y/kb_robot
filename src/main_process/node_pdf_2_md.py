@@ -43,6 +43,7 @@ class node_pdf_2_md(NodeBase):
 
         # 解压这个obj
         import zipfile
+
         # 这是拿到Zipfile对象而已
         zip_file_content = zipfile.ZipFile(md_zip_path_obj)
         # 准备存放路径(只要是路径  都要完整) 这是path对象

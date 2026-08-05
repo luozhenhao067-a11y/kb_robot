@@ -9,108 +9,128 @@ from tool.logger import logger
 
 class node_content_split(NodeBase):
     name = 'node_content_split'
+    # 防御性编程
     def process(self,state: ImportGraphState):
-        # 进来检测就完了
-        md_path = state.get('md_path', '')
-
+        md_path = state.get('md_path')
         if not md_path:
-            logger.info('他妈的md路径都没有啊,诗人???')
-            raise Exception('他妈的md路径都没有啊,诗人???')
-        md_path_obj = Path(md_path)
+            logger.info('我他妈服了几把md地址都不给')
+            raise Exception('我他妈服了几把md地址都不给')
+        md_path_obj = Path(md_path)  # obj的意思是地址对象  没有就是字符串
         if not md_path_obj.exists():
-            logger.info('md路径里没有文件啊???')
-            raise Exception('md路径里没有文件啊???')
-        # 都有取个content先
-        with open(md_path_obj, 'r', encoding='utf-8') as f:
+            logger.info('我他妈服了几把md地址不存在')
+            raise Exception('我他妈服了几把md地址不存在')
+        with open(md_path_obj, 'r', encoding='utf-8' )  as f:
             md_content = f.read()
         if not md_content:
-            logger.info('md文件里没有内容啊???')
-            raise Exception('md文件里没有内容啊???')
-        # 拿到content的第一件是就是先把换行符给我大一统(可以链式调用)
+            logger.info('我他妈服了几把md没内容')
+            raise Exception('我他妈服了几把md没内容')
+        # 换换行符
         file_title = md_path_obj.stem
         md_content = md_content.replace('\r\n', '\n').replace('\r', '\n')
-        # 进行粗切操作
-        # 按行切 得到行列表
+        # 粗切
         md_line_list = md_content.split('\n')
-        code_pattern = re.compile(r'^(`{3,}|~{3,})')
-        title_pattern = re.compile(r'^\s*#{1,6}\s+.+')
-        code_block_before =  False # 之前是否出现过```或者~~~
-        marker =  None
-        pre_idx =0
-        sec_list = []   # 存放小节
-        for idx,line in enumerate(md_line_list): # 进来的是每一行
-            # 先去空格再说
+        code_pattern = re.compile(r'(?:```|~~~)(\w+)?\s*\n([\s\S]*?)(?:```|~~~)')
+        title_pattern = re.compile(r'^(#{1,6})\s+(.+)$')
+        sign_before = False
+        marked = ''
+        pre_idx = 0
+        sec_list = []
+        for idx , line in enumerate(md_line_list):
+            # 先他妈除臭  空格阴没边了
             line = line.strip()
-            # 先匹配代码块
             code_match = code_pattern.match(line)
-            if code_match: # 匹配到代码块 看匹配到的是```还是~~~
-                if code_block_before:  # 前面已经出现过~~~或者```
-                    if code_match == marker: # 匹配到和之前一样的
-                        code_block_before = False
-                        marker = None
-                        logger.info('代码块完结')
-                else: # 前面没有```或者~~~
-                    code_block_before = True
-                    marker = code_match # 拿到匹配到的
+            # 先看是不是代码块
+            if code_match: # 有代码标识
+                if sign_before == True:  #之前有标识
+                    if marked == code_match.group(1): # 且标识相等
+                        sign_before = False
+                        marked = ''
+                else: # 之前没有标识
+                    sign_before = True
+                    marked = code_match.group(1)
+            # 不是代码而且是标题
             title_match = title_pattern.match(line)
-            if code_block_before ==  False and title_match: # 没出现过```~~~且有标题符号
-                pre_con_list = md_line_list[pre_idx:idx]  # 前文列表
-                pre_con = '\n'.join(pre_con_list)  # 合成前文
-                section = {
-                    'file_title' : file_title,
-                    'sec_title': pre_con_list[0] if pre_con_list[0].startswith('#') else '无题',
+            if sign_before == False and title_match: #  带'# '的被捕捉,目前在idx
+                pre_line_list = md_line_list[pre_idx:idx]
+                pre_con  = '\n'.join(pre_line_list) # 整合成文
+                sec_list.append({
+                    # 注意第一行没标题
+                    'sec_title': pre_line_list[0] if pre_con.startswith('#') else '无题',
+                    'file_title': file_title,
                     'sec_con': pre_con,
-                }
+                })
                 pre_idx = idx
-                sec_list.append(section)
-        # 剩最后一段
+
+        # 此时还剩最后一段
         sec_list.append({
-            'file_title' : file_title,
             'sec_title': md_line_list[pre_idx],
-            'sec_con': '\n'.join(md_line_list[pre_idx:]),
+            'file_title': file_title,
+            'sec_con': '\n'.join(md_line_list[pre_idx:])
         })
-        # 精切 这时候我拥有一个充满小节的列表
-        chunk_size =1000
-        chunk_overlap = 50
+        # 接下来递归细切
+        chunk_size = 200
+        chunk_overlap = 20
         spliter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", "。", "！", "？", "；", ".", "!", "?", ";", " "],
+            separators=["\n\n", "\n", "。", ". ", "；", "; ", " ", ""],
         )
-        # 先取头再切  他妈遍历的时候别几把动原列表 迭代器会几把失效  用个新列表装
-        final_sec_list = []
+        final_sec_list = []  # 命名要清楚 讲究 多写点
         for sec in sec_list:
-            sec_con = sec.get('sec_con', '')
-            sec_title = sec.get('sec_title', '')
-            # starswith可以对字符串使用
-            real_con = sec_con[len(sec_title):] if sec_con.startswith('#') else sec_con
-            # 太短 有表格  就不切(还是要加到列表里) 特殊情况if 或者if not解决
+            # 对于每一个小节 去头
+            sec_title = sec.get('sec_title')
+            sec_con = sec.get('sec_con')
+            real_con = sec_con[len(sec_title):] if  sec_con.startswith('#') else  sec_con   # 有些没标题
+            # 表格 太短 不用分
             if len(real_con) < chunk_size:
                 final_sec_list.append({
                     **sec,
-                    'part' :0 , # 第几部分:没切的部分
+                    'part':0 ,
                 })
                 continue
             if '<table' in real_con:
                 final_sec_list.append({
                     **sec,
-                    'part' :0 , # 第几部分:没切的部分
+                    'part':0 ,
                 })
                 continue
-            # 其他全几把切了
-            chunk_list = spliter.split_text(real_con)  # 可能不止一个
-            for idx,chunk in enumerate(chunk_list):
+            part_list =  spliter.split_text(real_con)
+            for idx , part in enumerate(part_list):
                 final_sec_list.append({
-                    'file_title': file_title,
                     'sec_title': sec_title,
-                    'sec_con': sec_title + '\n' + chunk,
-                    'part': idx,
+                    'file_title':file_title,
+                    'sec_con':part,
+                    'part':idx,
                 })
+        # 存个json
+        json_path = md_path_obj.parent / ' 分号段了准备存向量库了.json'
+        with open(json_path, 'w', encoding='utf-8') as f:
+            f.write(json_format(final_sec_list))
+        return {
+            'chunks': final_sec_list
+        }
 
-            # 搞完备份一个json
-            json_path = md_path_obj.parent /  'chunk.json'
-            with open(json_path, 'w', encoding='utf-8') as f:
-                f.write(json_format(final_sec_list))
+
+if __name__ == '__main__':
+    node = node_content_split()
+    init_state = {
+        'md_path': r'D:\kb_pro_imitation\output\万用表RS-12的使用\万用表RS-12的使用_new.md',
+    }
+    res = node.process(init_state)
+    print(json_format(res))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
