@@ -20,3 +20,19 @@ class minio_config:
     minio_bucket_name = os.getenv("MINIO_BUCKET_NAME")
     minio_img_dir = os.getenv("MINIO_IMG_DIR")
 
+
+class bge_m3:
+    bge_m3_path = os.getenv("BGE_M3_PATH")
+    # BGE-M3 模型名称
+    bge_m3 = os.getenv("BGE_M3")
+    # 嵌入模型运行设备，cuda:0表示使用第1块GPU，cpu表示使用CPU，cuda:N表示第N+1块GPU
+    bge_device = os.getenv("BGE_DEVICE")
+    # 是否使用半精度（True/False）1=开启（GPU加速更高效），0=关闭（兼容低版本GPU/CPU）
+    bge_fp16 = True if os.getenv("BGE_FP16") in ("1", "True",1,True) else False
+
+class milvus_client_config:
+    milvus_url = os.getenv('MILVUS_URL')
+    # 知识库切片集合名
+    chunks_collection = os.getenv('CHUNKS_COLLECTION')
+    # 商品名称集合名
+    item_name_collection = os.getenv('ITEM_NAME_COLLECTION')
