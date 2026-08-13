@@ -2,4 +2,4 @@ import json
 
 
 def json_format(res):
-    return json.dumps(res, indent=4,ensure_ascii= False ) # 变成json
+    return json.dumps(res, indent=4,ensure_ascii= False,default=str) # 变成json

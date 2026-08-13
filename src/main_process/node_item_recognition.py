@@ -87,7 +87,7 @@ class node_item_recognition(NodeBase):
             index_params = milvus_client.prepare_index_params()
             index_params.add_index(
                 field_name='dense',
-                metric_type='L2',
+                metric_type='COSINE',
                 index_type='IVF_FLAT',
                 params={"nlist": 128, 'nprobe': 10}
             )
@@ -120,8 +120,8 @@ class node_item_recognition(NodeBase):
         chunks_sample_list = chunks[:k]  # 取前10位
         content_2_model = '\n'
         for idx, chunk_sample in enumerate(chunks_sample_list):  # 对每一个chunk进行处理 标题加上内容
-            chunk_title = chunk_sample.get('title', '')
-            chunk_content = chunk_sample.get('content', '')
+            chunk_title = chunk_sample.get('sec_title', '')
+            chunk_content = chunk_sample.get('sec_con', '')
             chunk_text = f'[第{idx}个文本块]\n{file_title}\n{chunk_title}\n{chunk_content}'
             content_2_model += chunk_text
             if len(content_2_model) > max_len:

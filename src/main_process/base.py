@@ -28,6 +28,7 @@ class NodeBase(ABC):
             return res
         except Exception as e:
             logger.info(f'报错了 只因 : {e}')
+            raise e
 
 
 

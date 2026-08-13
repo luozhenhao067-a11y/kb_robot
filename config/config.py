@@ -36,3 +36,12 @@ class milvus_client_config:
     chunks_collection = os.getenv('CHUNKS_COLLECTION')
     # 商品名称集合名
     item_name_collection = os.getenv('ITEM_NAME_COLLECTION')
+
+class mongodb_config:
+    mongo_url = os.getenv("MONGO_URL")
+    mongo_db_name = os.getenv("MONGO_DB_NAME")
+
+
+class mcp_config:
+    mcp_base_url = os.getenv("MCP_DASHSCOPE_BASE_URL")
+    api_key = os.getenv("ALI_API_KEY")

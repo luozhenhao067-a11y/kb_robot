@@ -22,7 +22,7 @@ class node_bge_m3(NodeBase):
             chunk_plus_3 = chunks[i:i + 3]
             # print(chunk_plus_3)
             # 整合内容列表
-            chunk_content = [f"{chunk.get('item_name')}{chunk.get('content')}" for chunk in chunk_plus_3]
+            chunk_content = [f"{chunk.get('item_name')}{chunk.get('sec_con')}" for chunk in chunk_plus_3]
             # print(chunk_content)
             # 扔给大模型
             res = embedding_work(chunk_content)
@@ -30,8 +30,11 @@ class node_bge_m3(NodeBase):
             for idx, chunk in enumerate(chunk_plus_3):
                 chunk['dense'] = res.get('dense')[idx]
                 chunk['sparse'] = res.get('sparse')[idx]
-        with open(r'D:\kb_pro_imitation\output\万用表RS-12的使用\chunk_vec.json', 'w', encoding='utf-8') as f:
+        with open(r'D:\kb_pro_imitation\output\hak180产品安全手册\chunk_vec.json', 'w', encoding='utf-8') as f:
             f.write(json_format(chunks))
+        return {
+            'chunks': chunks
+        }
 
 
 if __name__ == '__main__':
