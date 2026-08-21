@@ -35,7 +35,7 @@ class node_content_split(NodeBase):
         for sec in sec_list:
             # 对于每一个小节 去头
             sec_title = sec.get('sec_title')
-            sec_con = sec.get('sec_con')
+            sec_con = sec.get('sec_con','').strip()
             real_con = sec_con[len(sec_title):] if sec_con.startswith('#') else sec_con  # 有些没标题
             # 表格 太短 不用分
             if len(real_con) < chunk_size:
@@ -60,8 +60,8 @@ class node_content_split(NodeBase):
                 })
         # 存个json
         json_path = md_path_obj.parent / ' 分号段了准备存向量库了.json'
-        with open(json_path, 'w', encoding='utf-8') as f:
-            f.write(json_format(final_sec_list))
+        # with open(json_path, 'w', encoding='utf-8') as f:
+        #     f.write(json_format(final_sec_list))
         return final_sec_list
 
     def rough_cut(self, file_title: str, md_content: str) -> list[Any]:
@@ -99,11 +99,13 @@ class node_content_split(NodeBase):
                 pre_idx = idx
 
         # 此时还剩最后一段
-        sec_list.append({
-            'sec_title': md_line_list[pre_idx],
-            'file_title': file_title,
-            'sec_con': '\n'.join(md_line_list[pre_idx:])
-        })
+        remain_con='\n'.join(md_line_list[pre_idx:])
+        if remain_con.strip():
+            sec_list.append({
+                'sec_title': md_line_list[pre_idx],
+                'file_title': file_title,
+                'sec_con':remain_con,
+            })
         return sec_list
 
     def check_file(self, state: ImportGraphState) -> tuple[str, str, Path]:

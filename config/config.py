@@ -45,3 +45,8 @@ class mongodb_config:
 class mcp_config:
     mcp_base_url = os.getenv("MCP_DASHSCOPE_BASE_URL")
     api_key = os.getenv("ALI_API_KEY")
+
+
+class rerank_config:
+    rerank_base_url =os.getenv("RERANK_BASE_URL")
+    rerank_api_key = os.getenv("RERANK_API_KEY")

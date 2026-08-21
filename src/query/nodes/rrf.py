@@ -38,7 +38,7 @@ class rrf(NodeBase):
         rrf_chunks = sorted(the_final_dict.values(), key=lambda x: x.get('score'), reverse=True)
         # print(json_format(rrf_chunks))
         return {
-            'rrf_chunks':rrf_chunks
+            'rrf_chunks':rrf_chunks[:10]
         }
 
 

@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 from main_process.base import NodeBase
 from main_process.state import ImportGraphState
 from tool.embedding_stuff import embedding_work
@@ -30,8 +32,8 @@ class node_bge_m3(NodeBase):
             for idx, chunk in enumerate(chunk_plus_3):
                 chunk['dense'] = res.get('dense')[idx]
                 chunk['sparse'] = res.get('sparse')[idx]
-        with open(r'D:\kb_pro_imitation\output\hak180产品安全手册\chunk_vec.json', 'w', encoding='utf-8') as f:
-            f.write(json_format(chunks))
+        # with open(rf'D:\kb_pro_imitation\output\{datetime.now().strftime("%Y%m%d")}\chunk_vec.json', 'w', encoding='utf-8') as f:
+        #     f.write(json_format(chunks))
         return {
             'chunks': chunks
         }

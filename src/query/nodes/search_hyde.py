@@ -59,7 +59,9 @@ class search_hyde(NodeBase):
             for i in res[0]
         ]
         print(json_format(res))
-        return hyde_embedding_chunks
+        return {
+            'hyde_embedding_chunks': hyde_embedding_chunks,
+        }
 
 
 

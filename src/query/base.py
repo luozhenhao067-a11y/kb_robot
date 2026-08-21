@@ -8,6 +8,7 @@
 from abc import abstractmethod, ABC
 from src.query.state import QueryGraphState
 from src.tool.logger import logger
+from tool.task_utils import add_running_task, put_data_to_queue, get_task_info, add_done_task
 
 
 class NodeBase(ABC):
@@ -26,12 +27,14 @@ class NodeBase(ABC):
         节点执行入口
         """
         try:
+            task_id=state.get('task_id')
             logger.info(f"{self.name} 开始执行...")
-
+            add_running_task(task_id,self.name)
+            put_data_to_queue(task_id,'progress',get_task_info(task_id))
             result = self.process(state)
-
+            add_done_task(task_id,self.name)
+            put_data_to_queue(task_id,'progress',get_task_info(task_id))
             logger.info(f"{self.name} 结束执行...")
-
             return result
         except Exception as e:
             logger.error(f"{self.name} 执行失败: {e}")

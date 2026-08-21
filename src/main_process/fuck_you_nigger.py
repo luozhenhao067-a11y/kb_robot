@@ -69,5 +69,5 @@ if __name__ == '__main__':
         'local_file_path': r'D:\kb_pro_imitation\05-device_txt\doc\hak180产品安全手册.pdf',
         'local_dir':r'D:\kb_pro_imitation\output'
     }
-    main =  main_process()
-    res =main.create_and_run(init_state)
+    # main_nigger =  main_process()
+    res =main_process.create_and_run(init_state)

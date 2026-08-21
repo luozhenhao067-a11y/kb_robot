@@ -99,12 +99,12 @@ class know_the_fucking_item(NodeBase):
             ]
             if confirm_item_name:
                 final_item_names  = confirm_item_name
-                answer =  ''
+                answer=''
             elif optional_item_name:
                 final_item_names = optional_item_name
-                answer = f'你说的是他妈下面哪个{','.join(optional_item_name)}'
+                answer=f'你说的是他妈下面哪个{','.join(optional_item_name)}'
             else:
-                answer = '他妈说的啥啊'
+                answer='他妈说的啥啊'
 
 
         # 有 answer 就需要添加历史
