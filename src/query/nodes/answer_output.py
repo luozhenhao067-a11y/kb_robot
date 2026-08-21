@@ -13,7 +13,8 @@ class answer_output(NodeBase):
         task_id=state.get("task_id")
         if answer:
             #  如果有答案了 一次性返回前端 最后出来的就是final
-            put_data_to_queue(task_id,'final',answer)
+            # 前端final处理器要的是 {'answer': ...} 包,裸字符串会被 JSON.parse 成字符串读不到 answer
+            put_data_to_queue(task_id,'final',{'answer': answer, 'image_urls': []})
         else:
             # 拿到相关搜索
             final_content=''
@@ -51,13 +52,14 @@ class answer_output(NodeBase):
             answer=''
             for i in res:
                 # 流式输出的就是delta
-                put_data_to_queue(task_id,'delta',i.content)
+                # 前端delta处理器读的是 d.delta,必须包成对象,裸字符串读不到
+                put_data_to_queue(task_id,'delta',{'delta': i.content})
                 answer+=i.content
             the_fucking_pic_team=set()
             md_img_pattern = re.compile(r'!\[.*?\]\((.*?)\)')
             for idx,chunk in enumerate(chunks):
                 content=chunk.get("content","")
-                print(f'我草草草草草草草草草草{content}')
+                content = "".join(content.strip())
                 matches = md_img_pattern.findall(content)
                 for match in matches:
                     img_url=match.strip()
@@ -73,6 +75,6 @@ class answer_output(NodeBase):
                     rewritten_query=rewritten_query,
                     item_names=item_names,
                 )
-            put_data_to_queue(task_id,'final',{'image_urls':pic_team})
+            put_data_to_queue(task_id,'final',{'answer': answer,'image_urls':pic_team})
         return {'answer':answer}
 

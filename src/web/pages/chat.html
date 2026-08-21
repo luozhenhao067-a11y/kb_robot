@@ -823,7 +823,8 @@
             es.addEventListener('delta', (e) => {
                 try {
                     const d = JSON.parse(e.data || '{}');
-                    const delta = d.delta || '';
+                    // 兼容后端发裸字符串的情况
+                    const delta = typeof d === 'string' ? d : (d.delta || '');
                     if (delta) {
                         rawAnswerText += delta;
                         // 即使后端未发送 final，也尽可能在流式过程中渲染图片
@@ -864,7 +865,9 @@
                 }
 
                 try {
-                    const d = JSON.parse(e.data || '{}');
+                    const raw = JSON.parse(e.data || '{}');
+                    // 兼容后端发裸字符串的情况
+                    const d = typeof raw === 'string' ? {answer: raw} : raw;
                     // 优先使用 final 包里的完整 answer，否则回退到流式拼接的文本
                     const finalText = (d && typeof d.answer === 'string' && d.answer.trim().length > 0) ? d.answer : (rawAnswerText || answerEl.textContent || '');
                     renderAnswerWithImages(answerEl, finalText, d.image_urls || []);
